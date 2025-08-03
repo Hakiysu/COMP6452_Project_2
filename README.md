@@ -55,3 +55,27 @@ It will act as a RESTful API server, providing endpoints for the frontend to int
 
 - ROUTES:
   - `/api/trace`: Endpoint to trace the history of a meat product.
+
+# HOW TO RUN
+1. npx hardhat node: start a local blockchain node.
+2. node app.js: start the local backend server.
+3. npx hardhat ignition deploy ./ignition/modules/MeatBatchModule.js --network localhost
+   - This will deploy the MeatBatch contract to the local blockchain.
+4. Use Postman or a web browser to access the API endpoints. (I write some simple webpage to test the API)
+   - For example, `http://localhost:3000/api/batch` to access the meat batch API.
+
+
+
+
+
+
+## MeatBatch Module
+This module is responsible for managing the lifecycle of meat batches, including their creation, processing, and status updates. It interacts with the `MeatBatch` smart contract deployed on the blockchain.
+
+1. /api/meatBatch: Endpoint to meat batch center
+  1. /api/meatBatch/create: Endpoint to create a new meat batch
+  2. /api/meatBatch/addRecord: Endpoint to add a record to a meat batch
+  3. /api/meatBatch/getStatus: Endpoint to get the status of a meat batch by ID
+  4. /api/meatBatch/getAll: Endpoint to get all meat batches
+  5. /api/meatBatch/progress: Endpoint to progress a meat batch to the next stage
+2. /api/regulator: Endpoint to register a new regulator center

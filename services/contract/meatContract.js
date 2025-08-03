@@ -2,8 +2,8 @@
 // use to interact with the MeatBatch contract
 
 const { ethers } = require("ethers");
-const config = require("../config");
-const meatBatch = require("../artifacts/contracts/MeatBatch.sol/MeatBatch.json");
+const config = require("../../config");
+const meatBatch = require("../../artifacts/contracts/MeatBatch.sol/MeatBatch.json");
 // Load contract ABI and address from artifacts
 
 const meatBatchABI = meatBatch.abi;
