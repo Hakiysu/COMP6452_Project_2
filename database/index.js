@@ -3,7 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 // 自动创建数据库文件
-const dbPath = path.resolve(__dirname, '../data.sqlite3');
+const dbPath = path.resolve(__dirname, './backend.db');
 const db = new sqlite3.Database(dbPath);
 
 // 通用封装
