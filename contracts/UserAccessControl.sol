@@ -13,7 +13,6 @@ interface IMeatBatchContract {
     function SLAUGHTER_ROLE() external view returns (bytes32);
     function INSPECTOR_ROLE() external view returns (bytes32);
     function REGULATOR_ROLE() external view returns (bytes32);
-    function CONSUMER_ROLE() external view returns (bytes32);
 }
 
 contract AccessManager is AccessControl {
@@ -60,10 +59,6 @@ contract AccessManager is AccessControl {
         meatBatch.grantRole(meatBatch.REGULATOR_ROLE(), user);
     }
 
-    function grantConsumer(address user) external onlyAdmin {
-        meatBatch.grantRole(meatBatch.CONSUMER_ROLE(), user);
-    }
-
     function revokeFarmer(address user) external onlyAdmin {
         meatBatch.revokeRole(meatBatch.FARMER_ROLE(), user);
     }
@@ -80,10 +75,6 @@ contract AccessManager is AccessControl {
         meatBatch.revokeRole(meatBatch.REGULATOR_ROLE(), user);
     }
 
-    function revokeConsumer(address user) external onlyAdmin {
-        meatBatch.revokeRole(meatBatch.CONSUMER_ROLE(), user);
-    }
-
     // ----- 查询 -----
 
     function hasAnyRole(address user) external view returns (bool) {
@@ -91,8 +82,7 @@ contract AccessManager is AccessControl {
             meatBatch.hasRole(meatBatch.FARMER_ROLE(), user) ||
             meatBatch.hasRole(meatBatch.SLAUGHTER_ROLE(), user) ||
             meatBatch.hasRole(meatBatch.INSPECTOR_ROLE(), user) ||
-            meatBatch.hasRole(meatBatch.REGULATOR_ROLE(), user) ||
-            meatBatch.hasRole(meatBatch.CONSUMER_ROLE(), user)
+            meatBatch.hasRole(meatBatch.REGULATOR_ROLE(), user)
         );
     }
 
@@ -109,8 +99,6 @@ contract AccessManager is AccessControl {
             roleHash = meatBatch.INSPECTOR_ROLE();
         } else if (keccak256(bytes(role)) == keccak256("REGULATOR_ROLE")) {
             roleHash = meatBatch.REGULATOR_ROLE();
-        } else if (keccak256(bytes(role)) == keccak256("CONSUMER_ROLE")) {
-            roleHash = meatBatch.CONSUMER_ROLE();
         } else {
             revert("Invalid role");
         }

@@ -35,7 +35,6 @@ contract MeatBatchContract is AccessControl {
     bytes32 public constant SLAUGHTER_ROLE = keccak256("SLAUGHTER_ROLE");
     bytes32 public constant INSPECTOR_ROLE = keccak256("INSPECTOR_ROLE");
     bytes32 public constant REGULATOR_ROLE = keccak256("REGULATOR_ROLE");
-    bytes32 public constant CONSUMER_ROLE = keccak256("CONSUMER_ROLE");
 
     mapping(string => Batch) public batches;
     mapping(string => Record[]) public batchRecords;
@@ -93,7 +92,6 @@ contract MeatBatchContract is AccessControl {
         _grantRole(SLAUGHTER_ROLE, msg.sender);
         _grantRole(INSPECTOR_ROLE, msg.sender);
         _grantRole(REGULATOR_ROLE, msg.sender);
-        _grantRole(CONSUMER_ROLE, msg.sender);
     }
 
     function createBatch(
