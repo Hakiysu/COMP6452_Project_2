@@ -1,67 +1,61 @@
 # COMP6452_Project_2
 
 
-## Dev Environment
-- **VSCode**: Use for code editing and debugging.
-- **Node.js**: Ensure you have Node.js installed for running the backend and Hardhat
-- **Hardhat**: Use for local blockchain development and testing.
-- **Postman**: Use for testing the RESTful API endpoints.
-- **Solidity**: Use for writing smart contracts.
-- **Ethers.js**: Use for interacting with the Ethereum blockchain in the backend.
-- **Express.js**: Use for building the RESTful API server.
-- **Mocha/Chai**: Use for testing the backend and smart contracts.
-- **Sqlite**: Optional, for lightweight database needs.
+## Main Dev Environment
+1. **Hardhat**: A development environment to compile, deploy, test, and debug Ethereum software.
+2. **Solidity**: The programming language for writing smart contracts.
+3. **Ethers.js**: A library for interacting with the Ethereum blockchain and its ecosystem.
+4. **Express.js**: A web framework for building RESTful APIs.
+5. **Postman**: A tool for testing APIs, useful for sending requests to the backend server.
+6. **Node.js**: JavaScript runtime for building the backend server.
 
 ## Project Structure
 ```
 COMP6452_Project_2/
-├── artifacts/                 # Hardhat 编译后的 ABI 和合约字节码（自动生成）
-├── cache/                     # Hardhat 编译缓存（自动生成）
-├── contracts/                 # Solidity 合约源码
-│   ├── Lock.sol
-│   └── MeatBatch.sol
-├── ignition/                  # Hardhat Ignition 自动部署模块（可选）
+├── artifacts/                      # Hardhat compiled contracts (automatically generated)
+├── cache/                          # Hardhat compilation cache (automatically generated)
+├── contracts/                      # Solidity contract source code
+│   ├── MeatBatchContract.sol       # Meat batch contract
+│   └── UserAccessControl.sol       # User access control contract
+├── controllers/                    # Controllers for handling business logic
+│   ├── meatBatchController.js      # Controller for meat batch operations
+│   └── userController.js           # Controller for user operations
+├── database/                       # Database files (e.g., SQLite, JSON)
+│   ├── backend.db                  # Off-chain meat batch data
+│   └── index.js                    # Database initialization and connection
+├── ignition/                       # Hardhat Ignition deployment module (optional)
 │   └── modules/
-│       └── meatBatch.js       # Ignition 部署配置
-├── node_modules/              # Node.js 依赖目录
-├── routes/                    # 路由定义（Express）
-│   └── batch.js               # 示例：GET /batchId 读取链上数据
-├── services/                  # 服务层（调用 ethers.js 连接链）
-│   └── meatContract.js        # 导出合约对象，用于调用合约方法
-├── scripts/                   # 手动部署脚本
-│   └── deploy.js              # 使用 ethers 部署合约
-├── test/                      # 测试脚本
-│   └── lock.js
-├── abi.js                     # 从 artifacts 里提取的精简 ABI（可选）
+│       └── MeatBatchDeployment.js  # Ignition deployment configuration
+├── node_modules/                   # Node.js dependencies
+├── routes/                         # Route definitions (Express)
+│   ├── router.js                   # Example: GET /batchId to read on-chain data
+│   ├── meatBatchRouter.js          # Meat batch related routes
+│   └── userRouter.js               # User related routes
+├── services/                       # Service layer
+│   ├── contract/                   # Controller for meat batch operations
+│   │   ├── meatBatchContractService.js     # Business logic for meat batch operations
+│   │   └── userContractService.js          # Controller for user operations
+│   ├── userService.js              # Business logic for user operations
+│   └── meatContract.js        # Exports contract object for calling contract methods
 ├── app.js                     # Express 应用入口
 ├── config.js                  # 项目配置文件（RPC、私钥、合约地址等）
 ├── hardhat.config.js          # Hardhat 配置
 ├── package.json               # 项目信息与依赖
 ├── package-lock.json          # 锁定依赖版本
 └── README.md                  # 项目说明
-
 ```
 
-
-## Backend
-It will act as a RESTful API server, providing endpoints for the frontend to interact with the blockchain.
-
-- Dependencies:
-  - Express.js: For building the RESTful API server.
-  - Ethers.js: For interacting with the Ethereum blockchain.
-  - Body-parser: For parsing incoming request bodies.
-  - Hardhat (for local blockchain)
-  - Mocha/Chai (for testing)
-
-- ROUTES:
-  - `/api/trace`: Endpoint to trace the history of a meat product.
-
 # HOW TO RUN
-1. npx hardhat node: start a local blockchain node.
-2. node app.js: start the local backend server.
-3. npx hardhat ignition deploy ./ignition/modules/MeatBatchModule.js --network localhost
-   - This will deploy the MeatBatch contract to the local blockchain.
-4. Use Postman or a web browser to access the API endpoints. (I write some simple webpage to test the API)
+1. Compile the contracts:
+   - Run `npx hardhat compile` to compile the Solidity contracts.
+2. Start a local blockchain node:
+   - Run `npx hardhat node` to start a local blockchain node.
+3. Start the local backend server:
+   - Run `node app.js` to start the local backend server.
+4. Deploy the contract:
+   - Run `npx hardhat ignition deploy ./ignition/modules/MeatBatchDeployment.js --network localhost` to deploy the contract to the local blockchain.
+5. Access the API endpoints:
+   - Use Postman or a web browser to access the API endpoints. (I write some Postman scripts to test the API)
    - For example, `http://localhost:3000/api/batch` to access the meat batch API.
 
 

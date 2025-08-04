@@ -9,6 +9,13 @@ const userContractService = require('../services/contract/userContractService');
 exports.addUser = async (req, res) => {
   const { address, role } = req.body;
   try {
+    if (!role || !address) {
+      return res.status(400).send({ error: "Role and address are required" });
+    }
+    // if it a legal wallet address ：ethers.isAddress
+    if (!ethers.isAddress(address)) {
+      return res.status(400).send({ error: "Invalid Ethereum address" });
+    }
     await userService.addUser(address, role);
     await userContractService.grantRoleToUser(address, role);
     res.status(201).send({ message: "User added successfully" });

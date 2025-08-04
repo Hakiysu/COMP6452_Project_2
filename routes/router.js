@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const meatBatchRoutes = require('./meatBatchRouter');
-const regulatorRoutes = require('./regulatorRouter');
 const userRoutes = require('./userRouter');
 // ...其它路由模块
 
@@ -13,7 +12,6 @@ router.get('/', (req, res) => {
 });
 
 router.use('/meatBatch', meatBatchRoutes);
-router.use('/regulator', regulatorRoutes);
 router.use('/user', userRoutes);
 
 
