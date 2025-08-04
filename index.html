@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>肉类溯源系统 - MetaMask登录</title>
+</head>
+<body>
+  <h1>肉类溯源系统 登录</h1>
+
+
+  <button id="connectBtn">用 MetaMask 登录</button>
+  <p id="status"></p>
+
+  <script>
+    const connectBtn = document.getElementById('connectBtn');
+    const status = document.getElementById('status');
+
+    async function connectWallet() {
+      if (!window.ethereum) {
+        status.textContent = '请先安装 MetaMask 钱包插件！';
+        return;
+      }
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+        status.textContent = '已登录钱包地址：' + account;
+      } catch (err) {
+        status.textContent = '连接钱包失败: ' + err.message;
+      }
+    }
+
+    connectBtn.addEventListener('click', connectWallet);
+  </script>
+</body>
+</html>
