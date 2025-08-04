@@ -18,8 +18,7 @@ async function grantRoleToUser(userAddress, role) {
     FARMER_ROLE: "grantFarmer",
     SLAUGHTER_ROLE: "grantSlaughter",
     INSPECTOR_ROLE: "grantInspector",
-    REGULATOR_ROLE: "grantRegulator",
-    CONSUMER_ROLE: "grantConsumer",
+    REGULATOR_ROLE: "grantRegulator"
   };
 
   const grantMethod = methodMap[role];
@@ -49,8 +48,7 @@ async function revokeRoleFromUser(userAddress, role) {
     FARMER_ROLE: "revokeFarmer",
     SLAUGHTER_ROLE: "revokeSlaughter",
     INSPECTOR_ROLE: "revokeInspector",
-    REGULATOR_ROLE: "revokeRegulator",
-    CONSUMER_ROLE: "revokeConsumer",
+    REGULATOR_ROLE: "revokeRegulator"
   };
 
   const revokeMethod = methodMap[role];
