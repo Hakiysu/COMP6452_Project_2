@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-contract MeatBatchContract {
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract MeatBatchContract is AccessControl {
     enum BatchStatus {
         Created,
         Fed,
         Slaughtered,
         Inspected,
-        Approved,
+        Approved, // 通过检查
         Rejected
     }
 
@@ -28,7 +30,12 @@ contract MeatBatchContract {
         uint256 createdAt;
     }
 
-    address public regulator;
+    // 角色定义
+    bytes32 public constant FARMER_ROLE = keccak256("FARMER_ROLE");
+    bytes32 public constant SLAUGHTER_ROLE = keccak256("SLAUGHTER_ROLE");
+    bytes32 public constant INSPECTOR_ROLE = keccak256("INSPECTOR_ROLE");
+    bytes32 public constant REGULATOR_ROLE = keccak256("REGULATOR_ROLE");
+    bytes32 public constant CONSUMER_ROLE = keccak256("CONSUMER_ROLE");
 
     mapping(string => Batch) public batches;
     mapping(string => Record[]) public batchRecords;
@@ -36,7 +43,7 @@ contract MeatBatchContract {
 
     modifier onlyRegulator() {
         require(
-            msg.sender == regulator,
+            hasRole(REGULATOR_ROLE, msg.sender),
             "Only regulator can perform this action"
         );
         _;
@@ -80,13 +87,19 @@ contract MeatBatchContract {
     );
 
     constructor() {
-        regulator = msg.sender;
+        // 部署者同时获得所有重要角色，方便管理
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(FARMER_ROLE, msg.sender);
+        _grantRole(SLAUGHTER_ROLE, msg.sender);
+        _grantRole(INSPECTOR_ROLE, msg.sender);
+        _grantRole(REGULATOR_ROLE, msg.sender);
+        _grantRole(CONSUMER_ROLE, msg.sender);
     }
 
     function createBatch(
         string memory _batchId,
         string memory _animalType
-    ) public {
+    ) public onlyRole(FARMER_ROLE) {
         require(!batches[_batchId].exists, "Batch ID already exists");
 
         batches[_batchId] = Batch({
@@ -106,7 +119,7 @@ contract MeatBatchContract {
     function feedBatch(
         string memory _batchId,
         string memory _jsonData
-    ) public onlyOwner(_batchId) batchExists(_batchId) {
+    ) public onlyOwner(_batchId) batchExists(_batchId) onlyRole(FARMER_ROLE) {
         Batch storage batch = batches[_batchId];
         require(
             batch.status == BatchStatus.Created,
@@ -123,7 +136,7 @@ contract MeatBatchContract {
     function slaughterBatch(
         string memory _batchId,
         string memory _jsonData
-    ) public batchExists(_batchId) {
+    ) public batchExists(_batchId) onlyRole(FARMER_ROLE) {
         Batch storage batch = batches[_batchId];
         require(
             batch.status == BatchStatus.Fed,
@@ -140,7 +153,7 @@ contract MeatBatchContract {
     function inspectBatch(
         string memory _batchId,
         string memory _jsonData
-    ) public onlyRegulator batchExists(_batchId) {
+    ) public onlyRole(INSPECTOR_ROLE) batchExists(_batchId) {
         Batch storage batch = batches[_batchId];
         require(
             batch.status == BatchStatus.Slaughtered,
@@ -157,7 +170,7 @@ contract MeatBatchContract {
     function approveBatch(
         string memory _batchId,
         string memory remarks
-    ) public onlyRegulator batchExists(_batchId) {
+    ) public onlyRole(REGULATOR_ROLE) batchExists(_batchId) {
         Batch storage batch = batches[_batchId];
         require(
             batch.status == BatchStatus.Inspected,
@@ -184,36 +197,8 @@ contract MeatBatchContract {
                 createdAt: block.timestamp
             })
         );
-
         emit RecordAdded(_batchId, _stage, msg.sender, block.timestamp);
     }
-
-    // function progressStatus(string memory _batchId)
-    //     public
-    //     batchExists(_batchId)
-    // {
-    //     Batch storage batch = batches[_batchId];
-    //     require(batch.status != BatchStatus.Approved && batch.status != BatchStatus.Rejected, "Cannot progress completed batch");
-    //     batch.status = BatchStatus(uint(batch.status) + 1);
-    //     batch.updatedAt = block.timestamp;
-
-    //     emit BatchStatusUpdated(_batchId, batch.status, block.timestamp);
-    // }
-
-    // function inspectBatch(string memory _batchId, bool approve, string memory remarks)
-    //     public
-    //     batchExists(_batchId)
-    //     onlyRegulator
-    // {
-    //     Batch storage batch = batches[_batchId];
-    //     require(batch.status == BatchStatus.Inspected, "Batch must be in inspected state");
-    //     batch.status = approve ? BatchStatus.Approved : BatchStatus.Rejected;
-    //     batch.updatedAt = block.timestamp;
-
-    //     addRecord(_batchId, approve ? "Approved" : "Rejected", remarks);
-
-    //     emit BatchInspected(_batchId, approve, remarks, block.timestamp);
-    // }
 
     function getBatchById(
         string memory _batchId
@@ -240,7 +225,8 @@ contract MeatBatchContract {
             b.status,
             b.exists,
             b.updatedAt
-        );}
+        );
+    }
 
     function getAllBatchIds() public view returns (string[] memory) {
         return allBatchIds;

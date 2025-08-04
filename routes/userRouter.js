@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const userService = require("../services/userService");
+const userController = require("../controllers/userController");
 
 // index
 router.get('/', (req, res) => {
@@ -47,15 +48,13 @@ router.post('/add', async (req, res) => {
       console.error("User is already registered:", address);
       return res.status(400).send({ error: "User is already registered" });
     }
-    // service add
-    await userService.addUser(address, role);
+    // controller add
+    await userController.addUser(req, res);
   } catch (error) {
     console.error("Error adding address:", error);
     return res.status(500).send({ error: "Internal server error" });
   }
-  res.status(201).send({ message: "Address added successfully" });
 });
-
 
 // get user data by user address
 router.get('/get/:address', async (req, res) => {

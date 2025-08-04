@@ -1,6 +1,27 @@
 const meatBatchService = require('../services/meatBatchService');
 const meatBatchContractService = require('../services/contract/meatBatchContractService');
 
+const statusMap = {
+  0: 'Created',
+  1: 'Fed',
+  2: 'Slaughtered',
+  3: 'Inspected',
+  4: 'Approved',
+  5: 'Rejected'
+};
+
+function formatBatchData(data) {
+  return {
+    batchId: data[0],
+    owner: data[1],
+    animalType: data[2],
+    createdAt: new Date(Number(data[3]) * 1000).toISOString().slice(0, 19).replace('T', ' '),
+    status: Number(data[4]),  // 如果你有状态映射，可以映射成对应字符串
+    exists: data[5],
+    updatedAt: new Date(Number(data[6]) * 1000).toISOString().slice(0, 19).replace('T', ' ')
+  };
+}
+
 
 //createBatch
 exports.createBatch = async (req, res) => {
@@ -82,7 +103,7 @@ exports.feedBatch = async (req, res) => {
   const jsonData = JSON.stringify(recordData);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
   const tx_offchain = await meatBatchService.feedBatch(batchId, stage, jsonData, walletAddr, timestamp);
-  const tx_onchain = await meatBatchContractService.feedBatch(batchId, stage, jsonData);
+  const tx_onchain = await meatBatchContractService.feedBatch(batchId, jsonData);
   res.json({ success: true, tx_offchain, tx_onchain });
 };
 
@@ -98,7 +119,7 @@ exports.slaughterBatch = async (req, res) => {
   const jsonData = JSON.stringify(recordData);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
   const tx_offchain = await meatBatchService.slaughterBatch(batchId, stage, jsonData, walletAddr, timestamp);
-  const tx_onchain = await meatBatchContractService.slaughterBatch(batchId, stage, jsonData);
+  const tx_onchain = await meatBatchContractService.slaughterBatch(batchId, jsonData);
   res.json({ success: true, tx_offchain, tx_onchain });
 };
 
@@ -114,7 +135,7 @@ exports.inspectBatch = async (req, res) => {
   const jsonData = JSON.stringify(recordData);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
   const tx_offchain = await meatBatchService.inspectBatch(batchId, stage, jsonData, walletAddr, timestamp);
-  const tx_onchain = await meatBatchContractService.inspectBatch(batchId, stage, jsonData);
+  const tx_onchain = await meatBatchContractService.inspectBatch(batchId, jsonData);
   res.json({ success: true, tx_offchain, tx_onchain });
 };
 
@@ -128,7 +149,7 @@ exports.approveBatch = async (req, res) => {
   const jsonData = JSON.stringify(recordData);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
   const tx_offchain = await meatBatchService.approveBatch(batchId, stage, jsonData, walletAddr, timestamp);
-  const tx_onchain = await meatBatchContractService.approveBatch(batchId, stage, jsonData);
+  const tx_onchain = await meatBatchContractService.approveBatch(batchId, jsonData);
   res.json({ success: true, tx_offchain, tx_onchain });
 };
         
@@ -172,6 +193,32 @@ exports.getBatchByIdOnchain = async (req, res) => {
   jsonData = JSON.stringify(batch, (_, value) =>
     typeof value === "bigint" ? value.toString() : value
   );
+  // format the batch data
+  jsonData = formatBatchData(batch);
+  jsonData.status = statusMap[jsonData.status]
+  console.log("Formatted batch data:", jsonData);
 
   return res.json({ success: true, batch: jsonData });
+};
+
+
+
+// get batch records on blockchain
+exports.getBatchRecordsByBatchIdOnchain = async (req, res) => {
+  const { batchId } = req.body;
+  if (!batchId) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+  const records = await meatBatchContractService.getBatchRecords(batchId);
+  // Format records
+  const recordsFormatted = records.map(r => {
+    return {
+      stage: r[0],           // string
+      content: JSON.parse(r[1]),         // string，直接用，不要JSON.parse
+      createdBy: r[2],       // address
+      createdAt: r[3].toString(),  // BigInt 转字符串
+    };
+  });
+  console.log("Retrieved records:", recordsFormatted);
+  return res.json({ success: true, records: recordsFormatted });
 };

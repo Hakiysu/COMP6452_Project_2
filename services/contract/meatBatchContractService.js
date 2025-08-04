@@ -7,7 +7,7 @@ const meatBatch = require("../../artifacts/contracts/MeatBatchContract.sol/MeatB
 const meatBatchABI = meatBatch.abi;
 const provider = new ethers.JsonRpcProvider(config.RPC_URL);
 const signer = new ethers.Wallet(config.PRIVATE_KEY, provider);
-const contract = new ethers.Contract(config.CONTRACT_ADDRESS, meatBatchABI, signer);
+const contract = new ethers.Contract(config.MEATBATCH_CONTRACT_ADDRESS, meatBatchABI, signer);
 
 module.exports = {
   // 创建批次
@@ -19,6 +19,7 @@ module.exports = {
 
   // feed
   feedBatch: async (batchId, jsonData) => {
+    console.log("Feeding batch with ID:", batchId, "and data:", jsonData);
     const tx = await contract.feedBatch(batchId, jsonData);
     await tx.wait();
     return tx.hash;

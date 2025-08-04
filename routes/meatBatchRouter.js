@@ -29,7 +29,7 @@ router.post('/createBatch', async (req, res) => {
     console.log("Creating batch with data:", req.body);
     const { walletAddr, animalType, batchId } = req.body;
     console.log("Received data:", walletAddr, animalType, batchId);
-    if (!await userService.validateUserRole(walletAddr, 'Farmer')) {
+    if (!await userService.validateUserRole(walletAddr, 'FARMER_ROLE')) {
       return res.status(400).json({ error: "Unauthorized user role" });
     }
     if (!walletAddr || !animalType || !batchId) {
@@ -46,32 +46,32 @@ router.post('/createBatch', async (req, res) => {
   }
 });
 
-//addRecord
-router.post('/addRecord', async (req, res) => {
-  try {
-    console.log("Adding record with data:", req.body);
-    const { batchId, recordData, walletAddr } = req.body;
-    console.log("Received data:", batchId, recordData, walletAddr);
-    if (!batchId || !recordData || !walletAddr) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-    // check if batch exists
-    const batchExists = await meatBatchController.ifBatchExists(batchId);
-    if (!batchExists) {
-      return res.status(404).json({ error: "Batch not found" });
-    }
-    // check if user is authorized to add record
-    if (!await userService.validateUserRole(walletAddr, 'Farmer')) {
-      return res.status(400).json({ error: "Unauthorized user role" });
-    }
-    console.log("User is authorized to add record");
-    // proceed to add record
-    console.log("Proceeding to add record for batch:", batchId);
-    await meatBatchController.addRecord(req, res);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+// //addRecord
+// router.post('/addRecord', async (req, res) => {
+//   try {
+//     console.log("Adding record with data:", req.body);
+//     const { batchId, recordData, walletAddr } = req.body;
+//     console.log("Received data:", batchId, recordData, walletAddr);
+//     if (!batchId || !recordData || !walletAddr) {
+//       return res.status(400).json({ error: "Missing required fields" });
+//     }
+//     // check if batch exists
+//     const batchExists = await meatBatchController.ifBatchExists(batchId);
+//     if (!batchExists) {
+//       return res.status(404).json({ error: "Batch not found" });
+//     }
+//     // check if user is authorized to add record
+//     if (!await userService.validateUserRole(walletAddr, 'Farmer')) {
+//       return res.status(400).json({ error: "Unauthorized user role" });
+//     }
+//     console.log("User is authorized to add record");
+//     // proceed to add record
+//     console.log("Proceeding to add record for batch:", batchId);
+//     await meatBatchController.addRecord(req, res);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 
 //getBatchByBatchId
 router.get('/getBatchByBatchId', async (req, res) => {
@@ -115,7 +115,6 @@ router.post('/feedBatch', async (req, res) => {
   try {
     const { batchId, recordData, walletAddr } = req.body;
     console.log("Feeding batch with data:", req.body);
-    console.log("Received data:", batchId, recordData, walletAddr);
     if (!batchId || !recordData || !walletAddr) {
       return res.status(400).json({ error: "Missing required fields" });
     }
@@ -125,7 +124,7 @@ router.post('/feedBatch', async (req, res) => {
       return res.status(404).json({ error: "Batch not found" });
     }
     // check if user is authorized to feed batch
-    if (!await userService.validateUserRole(walletAddr, 'Farmer')) {
+    if (!await userService.validateUserRole(walletAddr, 'FARMER_ROLE')) {
       return res.status(400).json({ error: "Unauthorized user role" });
     }
     console.log("User is authorized to feed batch");
@@ -150,7 +149,7 @@ router.post('/slaughterBatch', async (req, res) => {
       return res.status(404).json({ error: "Batch not found" });
     }
     // check if user is authorized to slaughter batch
-    if (!await userService.validateUserRole(walletAddr, 'Slaughter')) {
+    if (!await userService.validateUserRole(walletAddr, 'SLAUGHTER_ROLE')) {
       return res.status(400).json({ error: "Unauthorized user role" });
     }
     console.log("User is authorized to slaughter batch");
@@ -175,7 +174,7 @@ router.post('/inspectBatch', async (req, res) => {
       return res.status(404).json({ error: "Batch not found" });
     }
     // check if user is authorized to inspect batch
-    if (!await userService.validateUserRole(walletAddr, 'Inspector')) {
+    if (!await userService.validateUserRole(walletAddr, 'INSPECTOR_ROLE')) {
       return res.status(400).json({ error: "Unauthorized user role" });
     }
     console.log("User is authorized to inspect batch");
@@ -200,7 +199,7 @@ router.post('/approveBatch', async (req, res) => {
       return res.status(404).json({ error: "Batch not found" });
     }
     // check if user is authorized to approve batch
-    if (!await userService.validateUserRole(walletAddr, 'Regulator')) {
+    if (!await userService.validateUserRole(walletAddr, 'REGULATOR_ROLE')) {
       return res.status(400).json({ error: "Unauthorized user role" });
     }
     console.log("User is authorized to approve batch");
@@ -237,6 +236,20 @@ router.post('/getBatchByIdOnchain', async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
     await meatBatchController.getBatchByIdOnchain(req, res);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+//get batch records by batch id onchain
+router.post('/getBatchRecordsByBatchIdOnchain', async (req, res) => {
+  try {
+    const { batchId } = req.body;
+    if (!batchId) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    await meatBatchController.getBatchRecordsByBatchIdOnchain(req, res);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
