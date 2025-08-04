@@ -1,5 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('backend.db');
+const db = new sqlite3.Database('E:\\repo\\COMP6452\\COMP6452_Project_2\\database\\backend.db');
 
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS users (
