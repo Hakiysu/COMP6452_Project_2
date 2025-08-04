@@ -24,13 +24,15 @@ async function addUser(walletAddress, role) {
 async function validateUserRole(walletAddress, expectedRole) {
   console.log("Validating user role for wallet address:", walletAddress, "Expected role:", expectedRole);
   const userRole = await getUserRoleByWalletAddress(walletAddress);
-  console.log("User role found in db:", userRole, "Matches expected role:", expectedRole, "Result:", userRole === expectedRole);
+  console.log("User role found in db:", userRole, "| Matches expected role:", expectedRole, "| Result:", userRole === expectedRole);
   return userRole === expectedRole;
 }
 
 // get user role by wallet address
 async function getUserRoleByWalletAddress(walletAddress) {
-  const user = await getUserByWalletAddress(walletAddress);
+  const sql = `SELECT role FROM users WHERE wallet_address = ?`;
+  const user = await db.get(sql, [walletAddress]);
+  console.log("Getting user role for wallet address:", walletAddress, "Found user:", user);
   return user ? user['role'] : null;
 }
 

@@ -70,7 +70,7 @@ router.get('/get/:address', async (req, res) => {
 });
 
 // remove user address by address
-router.delete('/remove', async (req, res) => {
+router.post('/remove', async (req, res) => {
   const { address } = req.body;
   // TODO: Add logic to remove the address from the database
   try {
@@ -83,8 +83,7 @@ router.delete('/remove', async (req, res) => {
       console.error("User is not exists:", address);
       return res.status(400).send({ error: "User is not exists" });
     }
-    await userService.removeUser(address);
-    return res.status(200).send({ message: "Address removed successfully" });
+    await userController.removeUser(req, res);
   } catch (error) {
     console.error("Error removing address:", error);
     return res.status(500).send({ error: "Internal server error" });

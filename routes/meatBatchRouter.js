@@ -29,12 +29,21 @@ router.post('/createBatch', async (req, res) => {
     console.log("Creating batch with data:", req.body);
     const { walletAddr, animalType, batchId } = req.body;
     console.log("Received data:", walletAddr, animalType, batchId);
-    if (!await userService.validateUserRole(walletAddr, 'FARMER_ROLE')) {
-      return res.status(400).json({ error: "Unauthorized user role" });
-    }
     if (!walletAddr || !animalType || !batchId) {
       return res.status(400).json({ error: "Missing required fields" });
     }
+    // check if user exists
+    const isRegistered = await userService.isUserRegistered(walletAddr);
+    if (!isRegistered) {
+      return res.status(400).json({ error: "User is not registered" });
+    }
+    // check if user is authorized to create batch
+    if (!await userService.validateUserRole(walletAddr, 'FARMER_ROLE')) {
+      return res.status(400).json({ error: "Unauthorized user role" });
+    }
+    console.log("User is authorized to create batch");
+    // proceed to create batch
+    console.log("Proceeding to create batch with ID:", batchId);
     // check if batch already exists
     const existingBatch = await meatBatchController.ifBatchExists(batchId);
     if (existingBatch) {
@@ -46,32 +55,7 @@ router.post('/createBatch', async (req, res) => {
   }
 });
 
-// //addRecord
-// router.post('/addRecord', async (req, res) => {
-//   try {
-//     console.log("Adding record with data:", req.body);
-//     const { batchId, recordData, walletAddr } = req.body;
-//     console.log("Received data:", batchId, recordData, walletAddr);
-//     if (!batchId || !recordData || !walletAddr) {
-//       return res.status(400).json({ error: "Missing required fields" });
-//     }
-//     // check if batch exists
-//     const batchExists = await meatBatchController.ifBatchExists(batchId);
-//     if (!batchExists) {
-//       return res.status(404).json({ error: "Batch not found" });
-//     }
-//     // check if user is authorized to add record
-//     if (!await userService.validateUserRole(walletAddr, 'Farmer')) {
-//       return res.status(400).json({ error: "Unauthorized user role" });
-//     }
-//     console.log("User is authorized to add record");
-//     // proceed to add record
-//     console.log("Proceeding to add record for batch:", batchId);
-//     await meatBatchController.addRecord(req, res);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
+
 
 //getBatchByBatchId
 router.get('/getBatchByBatchId', async (req, res) => {

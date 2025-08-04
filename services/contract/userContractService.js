@@ -40,15 +40,32 @@ async function hasAnyRole(userAddress) {
   return await contract.hasAnyRole(userAddress);
 }
 
-// get user by address
-async function getUserByAddress(address) {
-  if (!ethers.isAddress(address)) {
+async function revokeRoleFromUser(userAddress, role) {
+  if (!ethers.isAddress(userAddress)) {
     throw new Error("Invalid Ethereum address");
   }
+
+  const methodMap = {
+    FARMER_ROLE: "revokeFarmer",
+    SLAUGHTER_ROLE: "revokeSlaughter",
+    INSPECTOR_ROLE: "revokeInspector",
+    REGULATOR_ROLE: "revokeRegulator",
+    CONSUMER_ROLE: "revokeConsumer",
+  };
+
+  const revokeMethod = methodMap[role];
+  if (!revokeMethod || !contract[revokeMethod]) {
+    throw new Error("Invalid role");
+  }
+
+  const tx = await contract[revokeMethod](userAddress);
+  await tx.wait();
+  console.log(`✅ Role ${role} revoked from ${userAddress}`);
 }
+  
 
 module.exports = {
   grantRoleToUser,
   hasAnyRole,
-  getUserByAddress
+  revokeRoleFromUser
 };

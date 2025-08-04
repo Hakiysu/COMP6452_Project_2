@@ -1,6 +1,8 @@
 const meatBatchService = require('../services/meatBatchService');
 const meatBatchContractService = require('../services/contract/meatBatchContractService');
 
+const userService = require('../services/userService');
+
 const statusMap = {
   0: 'Created',
   1: 'Fed',
@@ -28,6 +30,25 @@ exports.createBatch = async (req, res) => {
   // gather data
   // receive: wallet_addr, animal_type, batch_id
   const { walletAddr, animalType, batchId } = req.body;
+  if (!walletAddr || !animalType || !batchId) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+  console.log("Creating batch with data:", req.body);
+  // check if batch exists
+  const batchExists = await this.ifBatchExists(batchId);
+  if (batchExists) {
+    return res.status(400).json({ error: "Batch already exists" });
+  }
+  // check if user is registered
+  const isRegistered = await userService.isUserRegistered(walletAddr);
+  if (!isRegistered) {
+    return res.status(400).json({ error: "User is not registered" });
+  }
+  // check if user has farmer role
+  const hasFarmerRole = await userService.validateUserRole(walletAddr, 'FARMER_ROLE');
+  if (!hasFarmerRole) {
+    return res.status(403).json({ error: "User does not have farmer role" });
+  }
   // create timestamp and status
   // like 2025-08-03 06:41:21
   const create_timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');

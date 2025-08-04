@@ -18,4 +18,18 @@ exports.addUser = async (req, res) => {
   }
 };
 
-
+// remove user
+exports.removeUser = async (req, res) => {
+  const { address } = req.body;
+  try {
+    
+    const role = await userService.getUserRoleByWalletAddress(address);
+    console.log(`Removing user with address: ${address} and role: ${role}`);
+    await userContractService.revokeRoleFromUser(address, role);
+    await userService.removeUser(address);
+    res.status(200).send({ message: "User removed successfully" });
+  } catch (error) {
+    console.error("Error removing user:", error);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
