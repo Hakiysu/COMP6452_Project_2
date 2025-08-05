@@ -123,8 +123,9 @@ exports.feedBatch = async (req, res) => {
   const stage = "Feeding Stage";
   const jsonData = JSON.stringify(recordData);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  const tx_onchain = await meatBatchContractService.feedBatch(batchId, jsonData, walletAddr);
   const tx_offchain = await meatBatchService.feedBatch(batchId, stage, jsonData, walletAddr, timestamp);
-  const tx_onchain = await meatBatchContractService.feedBatch(batchId, jsonData);
+
   res.json({ success: true, tx_offchain, tx_onchain });
 };
 
@@ -140,12 +141,12 @@ exports.slaughterBatch = async (req, res) => {
   const jsonData = JSON.stringify(recordData);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
   const tx_offchain = await meatBatchService.slaughterBatch(batchId, stage, jsonData, walletAddr, timestamp);
-  const tx_onchain = await meatBatchContractService.slaughterBatch(batchId, jsonData);
+  const tx_onchain = await meatBatchContractService.slaughterBatch(batchId, jsonData, walletAddr);
   res.json({ success: true, tx_offchain, tx_onchain });
 };
 
-// inspectBatch
-exports.inspectBatch = async (req, res) => {
+// inspectBatchPass
+exports.inspectBatchPass = async (req, res) => {
   const { batchId, recordData, walletAddr } = req.body;
   console.log("Inspecting batch with data:", req.body);
   console.log("Received data:", batchId, recordData, walletAddr);
@@ -155,10 +156,27 @@ exports.inspectBatch = async (req, res) => {
   const stage = "Inspection Stage";
   const jsonData = JSON.stringify(recordData);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-  const tx_offchain = await meatBatchService.inspectBatch(batchId, stage, jsonData, walletAddr, timestamp);
-  const tx_onchain = await meatBatchContractService.inspectBatch(batchId, jsonData);
+  const tx_onchain = await meatBatchContractService.inspectBatchPass(batchId, jsonData, walletAddr);
+  const tx_offchain = await meatBatchService.inspectBatchPass(batchId, stage, jsonData, walletAddr, timestamp);
+
   res.json({ success: true, tx_offchain, tx_onchain });
 };
+// inspectBatchFail
+exports.inspectBatchFail = async (req, res) => {
+  const { batchId, recordData, walletAddr } = req.body;
+  console.log("Inspecting batch with data:", req.body);
+  console.log("Received data:", batchId, recordData, walletAddr);
+  if (!batchId || !recordData || !walletAddr) {     
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+  const stage = "Inspection Stage";
+  const jsonData = JSON.stringify(recordData);
+  const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  const tx_offchain = await meatBatchService.inspectBatchFail(batchId, stage, jsonData, walletAddr, timestamp);
+  const tx_onchain = await meatBatchContractService.inspectBatchFail(batchId, jsonData, walletAddr);
+  res.json({ success: true, tx_offchain, tx_onchain });
+};    
+
 
 // approveBatch
 exports.approveBatch = async (req, res) => {
@@ -170,10 +188,23 @@ exports.approveBatch = async (req, res) => {
   const jsonData = JSON.stringify(recordData);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
   const tx_offchain = await meatBatchService.approveBatch(batchId, stage, jsonData, walletAddr, timestamp);
-  const tx_onchain = await meatBatchContractService.approveBatch(batchId, jsonData);
+  const tx_onchain = await meatBatchContractService.approveBatch(batchId, jsonData, walletAddr);
   res.json({ success: true, tx_offchain, tx_onchain });
 };
         
+//rejectBatch
+exports.rejectBatch = async (req, res) => {
+  const { batchId, recordData, walletAddr } = req.body;
+  if (!batchId || !recordData || !walletAddr) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+  const stage = "Rejection Stage";
+  const jsonData = JSON.stringify(recordData);
+  const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  const tx_offchain = await meatBatchService.rejectBatch(batchId, stage, jsonData, walletAddr, timestamp);
+  const tx_onchain = await meatBatchContractService.rejectBatch(batchId, jsonData, walletAddr);
+  res.json({ success: true, tx_offchain, tx_onchain });
+};
 
 // getBatchRecordsByBatchId
 exports.getBatchRecordsByBatchId = async (req, res) => {
@@ -230,7 +261,9 @@ exports.getBatchRecordsByBatchIdOnchain = async (req, res) => {
   if (!batchId) {
     return res.status(400).json({ error: "Missing required fields" });
   }
+  console.log("Getting batch records by ID onchain:", batchId);
   const records = await meatBatchContractService.getBatchRecords(batchId);
+  console.log("Retrieved records onchain:", records);
   // Format records
   const recordsFormatted = records.map(r => {
     return {

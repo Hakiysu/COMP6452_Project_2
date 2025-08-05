@@ -38,3 +38,19 @@ exports.removeUser = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
+
+
+// check user balance
+exports.checkUserBalance = async (req, res) => {
+  const { address } = req.body;
+  try {
+    if (!ethers.isAddress(address)) {
+      return res.status(400).send({ error: "Invalid Ethereum address" });
+    }
+    const balance = await userContractService.checkAddressBalance(address);
+    res.status(200).send({ balance });
+  } catch (error) {
+    console.error("Error checking user balance:", error);
+    res.status(500).send({ error: error.message });
+  }
+}

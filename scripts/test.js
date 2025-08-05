@@ -1,20 +1,36 @@
-// scripts/verifyGrantRole.js
+// scripts/deploy.js
 const { ethers } = require("hardhat");
 
 async function main() {
-  const meatBatchAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-  const accessManagerAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying with account:", deployer.address);
 
-  const meatBatch = await ethers.getContractAt("MeatBatchContract", meatBatchAddress);
+  const FactoryMB = await ethers.getContractFactory("MeatBatchContract");
+  const meatBatch = await FactoryMB.deploy();
+  await meatBatch.waitForDeployment(); // 推荐新版 API
 
-  const DEFAULT_ADMIN_ROLE = await meatBatch.DEFAULT_ADMIN_ROLE();
+  const mbTx = await meatBatch.deploymentTransaction();
+  const mbReceipt = await mbTx.wait(1);
+  console.log("MeatBatchContract deployed at:", meatBatch.target ?? meatBatch.address);
+  console.log("Gas used:", mbReceipt.gasUsed.toString());
 
-  const hasRole = await meatBatch.hasRole(DEFAULT_ADMIN_ROLE, accessManagerAddress);
+  const FactoryAM = await ethers.getContractFactory("AccessManager");
+  const accessManager = await FactoryAM.deploy(meatBatch.target ?? meatBatch.address);
+  await accessManager.waitForDeployment();
 
-  console.log(`\nAccessManager has DEFAULT_ADMIN_ROLE in MeatBatchContract:`, hasRole ? "✅ Yes" : "❌ No");
+  const amTx = await accessManager.deploymentTransaction();
+  const amReceipt = await amTx.wait(1);
+  console.log("AccessManager deployed at:", accessManager.target ?? accessManager.address);
+  console.log("Gas used:", amReceipt.gasUsed.toString());
+
+  const feeData = await ethers.provider.getFeeData();
+  const price = feeData.gasPrice ?? ethers.parseUnits("20", "gwei");
+  const costMB = price * mbReceipt.gasUsed;
+  const costAM = price * amReceipt.gasUsed;
+  console.log("Estimated ETH cost:");
+  console.log(" - MeatBatch:", ethers.formatEther(costMB));
+  console.log(" - AccessManager:", ethers.formatEther(costAM));
+  console.log(" - Total:", ethers.formatEther(costMB + costAM));
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main().catch(console.error);
