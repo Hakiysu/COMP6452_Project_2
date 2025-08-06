@@ -111,7 +111,7 @@ describe("UserAccessControl + MeatBatchContract Permission Test", function () {
      .withArgs("B004", "Slaughtered", "ok", slaughterer.address, anyValue);
   });
 
-  it("没有 INSPECTOR_ROLE 无法执行 inspection", async () => {
+  it("Cannot perform inspection without INSPECTOR_ROLE", async () => {
     await meatBatch.connect(farmer).createBatch("B005", "Chicken");
     await meatBatch.connect(farmer).feedBatch("B005", "ok");
     await meatBatch.connect(slaughterer).slaughterBatch("B005", "ok");
@@ -121,7 +121,7 @@ describe("UserAccessControl + MeatBatchContract Permission Test", function () {
     ).to.be.revertedWith("Unauthorized: Invalid role");
   });
 
-  it("没有 REGULATOR_ROLE 无法审批", async () => {
+  it("Cannot approve without REGULATOR_ROLE", async () => {
     await meatBatch.connect(farmer).createBatch("B006", "Beef");
     await meatBatch.connect(farmer).feedBatch("B006", "ok");
     await meatBatch.connect(slaughterer).slaughterBatch("B006", "ok");
