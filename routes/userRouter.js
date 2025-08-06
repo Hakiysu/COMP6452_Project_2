@@ -117,12 +117,7 @@ router.post('/balance', async (req, res) => {
     if (!address) {
       return res.status(400).send({ error: "Address is required" });
     }
-    // if not exist, cannot check balance
-    const isRegistered = await userService.isUserRegistered(address);
-    if (!isRegistered) {
-      console.error("User is not exists:", address);
-      return res.status(400).send({ error: "User is not exists" });
-    }
+    
     await userController.checkUserBalance(req, res);
   } catch (error) {
     console.error("Error checking user balance:", error);

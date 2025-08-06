@@ -22,3 +22,9 @@ ignition/deployments/chain-31337
 /configs/accounts_onETH.json
 
 /database/backend.db
+
+data.json
+
+/scripts
+
+.DS_Store

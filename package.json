@@ -11,6 +11,7 @@
   "main": "app.js",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@nomicfoundation/hardhat-verify": "^2.1.1",
     "hardhat": "^2.26.1"
   },
   "scripts": {

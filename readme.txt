@@ -1,4 +1,4 @@
-📚 Dependencies
+### Dependencies
 Runtime
     express: Web server
     ethers: Ethereum JavaScript library
@@ -11,7 +11,7 @@ Install them via: npm ci
 
 
 
-🚀 How to Run
+### How to Run
 1. Install dependencies
     npm ci # if you download package-lock.json, it already uploaded to Github
 2. Compile contracts

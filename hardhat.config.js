@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
-
+require("@nomicfoundation/hardhat-verify");
+const data = require("./data.json");
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: "0.8.28",
@@ -8,8 +9,18 @@ module.exports = {
       url: "http://127.0.1:8545"
     },
     sepolia: {
-      url: `https://sepolia.infura.io/v3/d6763376844245e1a8eb410ea44713e3`,
-      accounts: [`c1dd5d81caa20d5e723908150d8d9111bb918544bd348c9d8c11209d6d532236`], 
+      url: `https://sepolia.infura.io/v3/${data.INFURA_API_KEY}`,
+      accounts: [`${data.ADMIN_PRIVATE_KEY}`], 
     }
   },
+  etherscan: {
+    // Your API key for Etherscan
+    // Obtain one at https://etherscan.io/
+    apiKey: data.ETHERSCAN_API_KEY,
+  },
+  sourcify: {
+    // Disabled by default
+    // Doesn't need an API key
+    enabled: true
+  }
 };
