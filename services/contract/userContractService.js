@@ -11,7 +11,6 @@ const ADMIN = config.ADMIN_ACCOUNT; // Admin account address
 const ADMIN_PRIVATE_KEY = config.ADMIN_PRIVATE_KEY
 
 
-// ✅ 通用授权方法
 async function grantRoleToUser(userAddress, role) {
   if (!ethers.isAddress(userAddress)) {
     throw new Error("Invalid Ethereum address");
@@ -28,10 +27,9 @@ async function grantRoleToUser(userAddress, role) {
   // grant the role to the user
   const tx = await contract.grantRoleTo(role,userAddress);
   await tx.wait();
-  console.log(`✅ Role ${role} granted to ${userAddress}`);
+  console.log(`Role ${role} granted to ${userAddress}`);
 }
 
-// ✅ 查询某用户是否有任何角色
 async function hasAnyRole(userAddress) {
   if (!ethers.isAddress(userAddress)) {
     throw new Error("Invalid address");
@@ -57,7 +55,7 @@ async function revokeRoleFromUser(userAddress, role) {
 
   const tx = await contract.revokeRoleFrom(role, userAddress);
   await tx.wait();
-  console.log(`✅ Role ${role} revoked from ${userAddress}`);
+  console.log(`Role ${role} revoked from ${userAddress}`);
 }
 
 // check address balance

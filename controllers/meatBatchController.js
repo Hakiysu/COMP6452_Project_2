@@ -18,7 +18,7 @@ function formatBatchData(data) {
     owner: data[1],
     animalType: data[2],
     createdAt: new Date(Number(data[3]) * 1000).toISOString().slice(0, 19).replace('T', ' '),
-    status: Number(data[4]),  // 如果你有状态映射，可以映射成对应字符串
+    status: Number(data[4]),
     exists: data[5],
     updatedAt: new Date(Number(data[6]) * 1000).toISOString().slice(0, 19).replace('T', ' ')
   };
@@ -270,10 +270,10 @@ exports.getBatchRecordsByBatchIdOnchain = async (req, res) => {
   // Format records
   const recordsFormatted = records.map(r => {
     return {
-      stage: r[0],           // string
-      content: JSON.parse(r[1]),         // string，直接用，不要JSON.parse
-      createdBy: r[2],       // address
-      createdAt: r[3].toString(),  // BigInt 转字符串
+      stage: r[0],           
+      content: JSON.parse(r[1]),     
+      createdBy: r[2],       
+      createdAt: r[3].toString(),
     };
   });
   console.log("Retrieved records:", recordsFormatted);

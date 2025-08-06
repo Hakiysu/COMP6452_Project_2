@@ -11,17 +11,17 @@ describe("MeatBatchContract Integration with UserAccessControl", function () {
 
     [owner, farmer, slaughterer, inspector, regulator, outsider] = await ethers.getSigners();
 
-    // 部署 UserAccessControl
+    // deploy UserAccessControl
     const UserContract = await ethers.getContractFactory("UserAccessControl");
     userContract = await UserContract.deploy();
     await userContract.waitForDeployment();
 
-    // 部署 MeatBatchContract，构造函数传入 userContract 地址
+    // deploy MeatBatchContract with userContract address
     const MeatBatch = await ethers.getContractFactory("MeatBatchContract");
     meatBatch = await MeatBatch.deploy(userContract.target);
     await meatBatch.waitForDeployment();
 
-    // 给各个角色授予权限（用 owner 角色调用）
+    // grant roles to users by owner
     await userContract.connect(owner).grantRoleTo("FARMER_ROLE", farmer.address);
     await userContract.connect(owner).grantRoleTo("SLAUGHTER_ROLE", slaughterer.address);
     await userContract.connect(owner).grantRoleTo("INSPECTOR_ROLE", inspector.address);

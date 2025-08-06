@@ -9,11 +9,6 @@ app.use(express.urlencoded({ extended: true }));
 const router = require('./routes/router');
 app.use('/api', router);
 
-// test json request and response
-app.post('/test', (req, res) => {
-    console.log("Received data:", req.body);
-    res.json({ success: true, message: "Data received successfully", data: req.body });
-});
 
 // Start the server
 const PORT = 3000;

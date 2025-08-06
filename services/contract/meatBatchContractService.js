@@ -6,11 +6,11 @@ const meatBatch = require("../../artifacts/contracts/MeatBatchContract.sol/MeatB
 
 
 const meatBatchABI = meatBatch.abi;
-const { getSignerByAddress } = require("./utils");
+const { getSignerByAddress } = require("./utils.js");
 
 
 module.exports = {
-  // 创建批次
+  // create a new batch
   createBatch: async (batchId, animalType, walletAddr) => {
     if (!batchId || !animalType || !walletAddr) {
       throw new Error("Missing required fields");
@@ -22,15 +22,14 @@ module.exports = {
     const signer = getSignerByAddress(walletAddr);
     const contract = new ethers.Contract(config.MEATBATCH_CONTRACT_ADDRESS, meatBatchABI, signer);
     console.log("Creating batch with ID:", batchId, "and animal type:", animalType);
-    // 调用合约方法创建批次
+    // check if the contract has the createBatch method
     if (!contract.createBatch) {
       throw new Error("createBatch method not found in contract");
     }
     console.log("Contract method createBatch found, proceeding with transaction");
-    // 调用合约方法创建批次
     console.log("Calling createBatch with parameters:", batchId, animalType);
     
-    
+    // generate the transaction
     const tx = await contract.createBatch(batchId, animalType);
     await tx.wait();
     return tx.hash;
@@ -50,13 +49,13 @@ module.exports = {
       throw new Error("feedBatch method not found in contract");
     }
     console.log("Feeding batch with ID:", batchId, "and data:", jsonData);
-    // 调用合约方法喂养批次
+    // generate the transaction
     const tx = await contract.feedBatch(batchId, jsonData);
     await tx.wait();
     return tx.hash;
   },
 
-  // 推进状态
+  // slaughter batch
   slaughterBatch: async (batchId,jsonData, walletAddr) => {
     if (!batchId || !jsonData || !walletAddr) {
       throw new Error("Missing required fields");
@@ -70,13 +69,13 @@ module.exports = {
       throw new Error("slaughterBatch method not found in contract");
     }
     console.log("Slaughtering batch with ID:", batchId, "and data:", jsonData);
-    // 调用合约方法屠宰批次
+    // generate the transaction
     const tx = await contract.slaughterBatch(batchId, jsonData);
     await tx.wait();
     return tx.hash;
   },
 
-  // 监管者审批
+  // inspector: pass batch
   inspectBatchPass: async (batchId, jsonData, walletAddr) => {
     if (!batchId || !jsonData || !walletAddr) {
       throw new Error("Missing required fields");
@@ -94,7 +93,7 @@ module.exports = {
     await tx.wait();
     return tx.hash;
   },
-  // 监管者拒绝
+  // inspector: fail batch
   inspectBatchFail: async (batchId, jsonData, walletAddr) => {
     if (!batchId || !jsonData || !walletAddr) {
       throw new Error("Missing required fields");
@@ -113,6 +112,7 @@ module.exports = {
     return tx.hash;
   },
 
+  // regulator: approve batch
   approveBatch: async (batchId, jsonData, walletAddr) => {
     if (!batchId || !jsonData || !walletAddr) {
       throw new Error("Missing required fields");
@@ -131,7 +131,7 @@ module.exports = {
     return tx.hash;
   },
 
-  //reject
+  // regulator: reject batch
   rejectBatch: async (batchId, jsonData, walletAddr) => {
     if (!batchId || !jsonData || !walletAddr) {
       throw new Error("Missing required fields");
@@ -150,7 +150,7 @@ module.exports = {
     return tx.hash;
   },
 
-  // 查询批次信息
+  // get batch by batch ID
   getBatchById: async (batchId) => {
     if (!batchId) {
       throw new Error("Missing required fields");
@@ -164,7 +164,7 @@ module.exports = {
     return await contract.getBatchById(batchId);
   },
 
-  // 查询所有批次ID
+  // get all batch records
   getAllBatchIds: async () => {
     
     const signer = getSignerByAddress(config.ADMIN_ACCOUNT);
@@ -176,7 +176,7 @@ module.exports = {
     return await contract.getAllBatchRecords();
   },
 
-  // 查询某批次所有记录
+  // get batch records by batch ID
   getBatchRecords: async (batchId) => {
     if (!batchId) {
       throw new Error("Missing required fields");

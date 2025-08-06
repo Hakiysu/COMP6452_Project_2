@@ -20,6 +20,8 @@ A PoC blockchain-based meat supply chain system developed. The system uses Ether
 
 ```
 COMP6452_Project_2/
+├── configs/                     # Configuration files
+│   └── accounts.json            # Accounts with addresses and private keys 
 ├── contracts/                   # Solidity smart contracts
 │   ├── MeatBatchContract.sol    # Business logic for batch lifecycle
 │   └── UserAccessControl.sol    # User role management
@@ -32,17 +34,22 @@ COMP6452_Project_2/
 │   └── index.js
 ├── ignition/                    # Hardhat deployment
 │   └── modules/
-│       └── MeatBatchDeployment.js
+│       ├── deploy2EthSepolia.js
+│       └── deploy2Localhost.js
 ├── routes/                      # Express.js API routes, transfers requests to controllers
 │   ├── router.js
 │   ├── meatBatchRouter.js
 │   └── userRouter.js
 ├── services/                    # Business logic layer, interacts with contracts and local database
 │   ├── contract/
+│   │   ├── utils.js
 │   │   ├── meatBatchContractService.js
 │   │   └── userContractService.js
 │   ├── userService.js
 │   └── meatBatchService.js
+├── tests/                       # Test cases for project
+│   ├── batch_test.js
+│   └── user_test.js
 ├── app.js                       # Main Express entrypoint
 ├── config.js                    # Hardhat/contract setup
 ├── hardhat.config.js            # Hardhat project config
@@ -97,7 +104,7 @@ npx hardhat node
 4. **Deploy contracts**
 
 ```bash
-npx hardhat ignition deploy ./ignition/modules/MeatBatchDeployment.js --network localhost
+npx hardhat ignition deploy ./ignition/modules/deploy2Localhost.js --network localhost
 ```
 
 5. **Initialize SQLite database**
@@ -124,15 +131,17 @@ Example endpoint: `GET http://localhost:3000/api/meatBatch/getAll`
 
 ### MeatBatch Module
 
-Handles meat batch lifecycle: creation, feeding, slaughtering, inspection, and approval.
+Handles meat batch lifecycle: creation, feeding, slaughtering, inspection pass or fail, and approval/rejection.
 
 | Route                                                 | Description                        |
 | ----------------------------------------------------- | ---------------------------------- |
 | `POST /api/meatBatch/createBatch`                     | Create a new meat batch            |
 | `POST /api/meatBatch/feedBatch`                       | Add feeding record                 |
 | `POST /api/meatBatch/slaughterBatch`                  | Add slaughter record               |
-| `POST /api/meatBatch/inspectBatch`                    | Add inspection record              |
+| `POST /api/meatBatch/inspectBatchPass`                | Add inspection record              |
+| `POST /api/meatBatch/inspectBatchFail`                | Add inspection failure record      |
 | `POST /api/meatBatch/approveBatch`                    | Approve a batch                    |
+| `POST /api/meatBatch/rejectBatch`                     | Reject a batch                     |
 | `GET  /api/meatBatch/getAll`                          | Get all batches                    |
 | `POST /api/meatBatch/getRecordByBatchId`              | Get off-chain batch data           |
 | `POST /api/meatBatch/getBatchByIdOnchain`             | Get batch by ID (on-chain)         |
@@ -148,6 +157,7 @@ Manages roles for users (FARMER_ROLE, SLAUGHTER_ROLE, INSPECTOR_ROLE, REGULATOR_
 | `POST /api/user/remove`      | Remove user from system     |
 | `GET /api/user/get/:address` | Get role info by address    |
 | `GET /api/user/all`          | Get all registered users    |
+| `POST /api/user/balance`     | Get users balance           |
 
 ---
 
