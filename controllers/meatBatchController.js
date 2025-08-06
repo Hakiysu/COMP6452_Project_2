@@ -53,10 +53,11 @@ exports.createBatch = async (req, res) => {
   // like 2025-08-03 06:41:21
   const create_timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
   const status = "Created";
-  // create batch in database
-  const batch = await meatBatchService.createBatch(walletAddr, animalType, batchId, create_timestamp, status);
+  
   // also create batch on blockchain
   const txHash = await meatBatchContractService.createBatch(batchId, animalType, walletAddr);
+  // create batch in database
+  const batch = await meatBatchService.createBatch(walletAddr, animalType, batchId, create_timestamp, status);
   res.json({ success: true, batch, txHash });
 };
 
@@ -140,8 +141,9 @@ exports.slaughterBatch = async (req, res) => {
   const stage = "Slaughter Stage";
   const jsonData = JSON.stringify(recordData);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-  const tx_offchain = await meatBatchService.slaughterBatch(batchId, stage, jsonData, walletAddr, timestamp);
   const tx_onchain = await meatBatchContractService.slaughterBatch(batchId, jsonData, walletAddr);
+
+  const tx_offchain = await meatBatchService.slaughterBatch(batchId, stage, jsonData, walletAddr, timestamp);
   res.json({ success: true, tx_offchain, tx_onchain });
 };
 
@@ -172,8 +174,8 @@ exports.inspectBatchFail = async (req, res) => {
   const stage = "Inspection Stage";
   const jsonData = JSON.stringify(recordData);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-  const tx_offchain = await meatBatchService.inspectBatchFail(batchId, stage, jsonData, walletAddr, timestamp);
   const tx_onchain = await meatBatchContractService.inspectBatchFail(batchId, jsonData, walletAddr);
+  const tx_offchain = await meatBatchService.inspectBatchFail(batchId, stage, jsonData, walletAddr, timestamp);
   res.json({ success: true, tx_offchain, tx_onchain });
 };    
 
@@ -187,8 +189,9 @@ exports.approveBatch = async (req, res) => {
   const stage = "Approval Stage";
   const jsonData = JSON.stringify(recordData);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-  const tx_offchain = await meatBatchService.approveBatch(batchId, stage, jsonData, walletAddr, timestamp);
   const tx_onchain = await meatBatchContractService.approveBatch(batchId, jsonData, walletAddr);
+
+  const tx_offchain = await meatBatchService.approveBatch(batchId, stage, jsonData, walletAddr, timestamp);
   res.json({ success: true, tx_offchain, tx_onchain });
 };
         
@@ -201,8 +204,8 @@ exports.rejectBatch = async (req, res) => {
   const stage = "Rejection Stage";
   const jsonData = JSON.stringify(recordData);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-  const tx_offchain = await meatBatchService.rejectBatch(batchId, stage, jsonData, walletAddr, timestamp);
   const tx_onchain = await meatBatchContractService.rejectBatch(batchId, jsonData, walletAddr);
+  const tx_offchain = await meatBatchService.rejectBatch(batchId, stage, jsonData, walletAddr, timestamp);
   res.json({ success: true, tx_offchain, tx_onchain });
 };
 
